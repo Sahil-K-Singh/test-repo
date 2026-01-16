@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+    stages {
+        stage('git') {
+            steps {
+                 git branch: 'main', url: 'https://github.com/devopswithdayanand/spring-petclinic-k8.git'
+            }
+        }
+        stage('sonarqube') {
+            steps {
+                withSonarQubeEnv("sonarqube") {
+                    sh 'mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'
+                }
+            }
+        }
+    }
+    post {
+        success {
+            mail to: 'sks0812003@gmail.com',
+                 cc: 'singhsahil812003@gmail.com',
+                 subject: 'jenkins job triggered',
+                 body: """Y pushed happen in repo by sahil our jenkins mail was successful
+                          Job Name: ${env.JOB_NAME}
+                          Build Number: ${env.BUILD_NUMBER}
+                          Build URL: ${env.BUILD_URL}
+                          """
+        }
+    }
+}
